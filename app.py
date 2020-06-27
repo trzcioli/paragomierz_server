@@ -4,15 +4,18 @@ import cv2
 import projekt
 import json
 from dataclasses_serialization.json import JSONSerializer
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 
 
 @app.route('/api/test', methods=['POST'])
+@cross_origin()
 def test():
-    r = request
     # convert string of image data to uint8
-    nparr = np.fromstring(r.data, np.uint8)
+    photo = request.files['photo']
+    print(photo)
+    nparr = np.fromstring(request.files['photo'].read(), np.uint8)
     # decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
 
@@ -34,4 +37,7 @@ def index():
 
 # start flask app
 if __name__ == '__main__':
-    app.run(threaded=True, port=5000)
+    cors = CORS(app)
+    app.config.from_pyfile('config.py')
+    app.config['CORS_HEADERS'] = 'Content-Type'
+    app.run(threaded=True, host="0.0.0.0", port=5000, debug=True)
