@@ -7,6 +7,9 @@ import re
 import regex as re
 from dataclasses import dataclass
 from typing import Optional
+from collections import Counter
+import requests
+import time
 
 
 @dataclass
@@ -99,3 +102,22 @@ def main(image):
     all_elems = extract_names_and_prices(text_join_lines)
 
     return all_elems
+
+
+def sum_by_categories(api_key, category_dict):
+    result = Counter()
+
+    for key, list_items in category_dict.items():
+        for item in list_items:
+            result[key] += item['price']
+
+    comment = "dane%20z%20paragomierza"
+    print(result)
+    for name, price in result.items():
+        price = str(price).replace('.', ',')
+
+        url = f"https://secure.kontomierz.pl/urlapi/{api_key}/portfel/-{price}/{comment}/{name}"
+
+        response = requests.get(url)
+        print(response)
+        print(response.url)

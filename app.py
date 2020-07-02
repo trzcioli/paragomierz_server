@@ -13,8 +13,7 @@ app = Flask(__name__)
 @cross_origin()
 def test():
     # convert string of image data to uint8
-    photo = request.files['photo']
-    print(photo)
+    photo = request.files['photo'].read()
     nparr = np.fromstring(request.files['photo'].read(), np.uint8)
     # decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
@@ -28,6 +27,20 @@ def test():
         js.append(JSONSerializer.serialize(i))
     # build a response dict to send back to client
     return Response(json.dumps(js, ensure_ascii=False).encode('utf8'),  mimetype='application/json')
+
+
+@app.route('/api/sum', methods=['POST'])
+@cross_origin()
+def test2():
+    category_dict = request.json
+
+    api_key = request.args.get('key')
+    print(api_key)
+
+    # do processing here....
+    projekt.sum_by_categories(api_key, category_dict)
+
+    return jsonify(success=True)
 
 
 @app.route('/')
