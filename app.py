@@ -14,7 +14,7 @@ app = Flask(__name__)
 def test():
     # convert string of image data to uint8
     photo = request.files['photo'].read()
-    nparr = np.fromstring(request.files['photo'].read(), np.uint8)
+    nparr = np.fromstring(photo, np.uint8)
     # decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
 
