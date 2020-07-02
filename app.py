@@ -5,8 +5,43 @@ import projekt
 import json
 from dataclasses_serialization.json import JSONSerializer
 from flask_cors import CORS, cross_origin
+from flask_sqlalchemy import SQLAlchemy
+import os
+from flask_migrate import Migrate
+migrate = Migrate(compare_type=True)
+
 
 app = Flask(__name__)
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+migrate.init_app(app)
+
+
+@application.route('/register', methods=["GET", "POST"])
+def register():
+    email = request.args.get('email')
+    api_key = request.args.get('api_key')
+    api_key_hash = generate_password_hash(api_key)
+    url_api_key = request.args.get('url_api_key')
+    url_api_key_hash = generate_password_hash(url_api_key)
+    password = request.args.get('password')
+    password_hash = generate_password_hash(password)
+    account = Table('user', metadata, autoload=True)
+    engine.execute(account.insert(), email=email, api_key=api_key_hash,
+                   url_api_key=url_api_key_hash, password=password_hash)
+    return jsonify({'user_added': True})
+
+
+@application.route('/sign_in', methods=["GET", "POST"])
+def sign_in():
+    username_entered = request.args.get('email')
+    password_entered = request.args.get('password')
+    user = session.query(Accounts).filter(or_(Accounts.username == username_entered, Accounts.email == username_entered)
+                                          ).first()
+    if user is not None and check_password_hash(user.password, password_entered):
+        return jsonify({'signed_in': True})
+    return jsonify({'signed_in': False})
 
 
 @app.route('/api/test', methods=['POST'])
