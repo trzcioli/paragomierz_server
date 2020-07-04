@@ -9,9 +9,9 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from models import User
+
 migrate = Migrate(compare_type=True)
-
-
 app = Flask(__name__)
 # app.config.from_object(os.environ['APP_SETTINGS'])
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -19,30 +19,32 @@ db = SQLAlchemy(app)
 migrate.init_app(app)
 
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route('/register', methods=["POST"])
 def register():
-    email = request.args.get('email')
-    api_key = request.args.get('api_key')
+    payload = request.json
+    email = payload.get('email')
+    api_key = payload.get('api_key')
     api_key_hash = generate_password_hash(api_key)
-    url_api_key = request.args.get('url_api_key')
+    url_api_key = payload.get('url_api_key')
     url_api_key_hash = generate_password_hash(url_api_key)
-    password = request.args.get('password')
+    password = payload.get('password')
     password_hash = generate_password_hash(password)
-    account = Table('user', metadata, autoload=True)
-    engine.execute(account.insert(), email=email, api_key=api_key_hash,
-                   url_api_key=url_api_key_hash, password=password_hash)
-    return jsonify({'user_added': True})
+    user = User(email=email, api_key=api_key_hash,
+                url_api_key=url_api_key_hash, password=password_hash)
+    db.session.add(user)
+    db.session.commit()
+    token = ''  # todo
+    return jsonify({'token': token})
 
 
 @app.route('/sign_in', methods=["GET", "POST"])
 def sign_in():
     username_entered = request.args.get('email')
     password_entered = request.args.get('password')
-    user = session.query(Accounts).filter(or_(Accounts.username == username_entered, Accounts.email == username_entered)
-                                          ).first()
+    user = User.query.get(email)
     if user is not None and check_password_hash(user.password, password_entered):
-        return jsonify({'signed_in': True})
-    return jsonify({'signed_in': False})
+        return jsonify({'token': ''})
+    return jsonify({'message': 'invalid credentials'}), 401
 
 
 @app.route('/api/test', methods=['POST'])
