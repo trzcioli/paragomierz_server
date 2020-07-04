@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 migrate.init_app(app)
 
 
-@application.route('/register', methods=["GET", "POST"])
+@app.route('/register', methods=["GET", "POST"])
 def register():
     email = request.args.get('email')
     api_key = request.args.get('api_key')
@@ -33,7 +33,7 @@ def register():
     return jsonify({'user_added': True})
 
 
-@application.route('/sign_in', methods=["GET", "POST"])
+@app.route('/sign_in', methods=["GET", "POST"])
 def sign_in():
     username_entered = request.args.get('email')
     password_entered = request.args.get('password')
