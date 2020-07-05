@@ -1,5 +1,5 @@
 from app import app, db
-from flask import request, Response, jsonify, make_response
+from flask import request, Response, jsonify, make_response, g
 import numpy as np
 import cv2
 from app import receipt_image_processor
@@ -8,6 +8,16 @@ from flask_cors import cross_origin
 from dataclasses_serialization.json import JSONSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
+from app import auth
+
+
+@auth.verify_password
+def verify_password(token, _):
+    user = User.verify_auth_token(token)
+    if not user:
+        return False
+    g.user = user
+    return True
 
 
 @app.route('/register', methods=["POST"])
@@ -24,8 +34,8 @@ def register():
                 url_api_key=url_api_key_hash, password=password_hash)
     db.session.add(user)
     db.session.commit()
-    token = ''  # todo
-    return jsonify({'token': token})
+    token = user.generate_auth_token()
+    return token
 
 
 @app.route('/sign_in', methods=["GET", "POST"])
@@ -35,13 +45,14 @@ def sign_in():
     password = payload.get('password')
     user = User.query.get(email)
     if user is not None and check_password_hash(user.password, password):
-        return jsonify({'token': ''})
+        return token
     return jsonify({'message': 'invalid credentials'}), 401
 
 
-@app.route('/api/test', methods=['POST'])
+@app.route('/api/process-image', methods=['POST'])
 @cross_origin()
-def test():
+@auth.login_required
+def process_image():
     # convert string of image data to uint8
     photo = request.files['photo'].read()
     nparr = np.fromstring(photo, np.uint8)
@@ -61,14 +72,9 @@ def test():
 
 @app.route('/api/sum', methods=['POST'])
 @cross_origin()
-def test2():
-    category_dict = request.json
-
-    api_key = request.args.get('key')
-    print(api_key)
-
-    # do processing here....
-    projekt.sum_by_categories(api_key, category_dict)
+@auth.login_required
+def sum_categories():
+    receipt_image_processor.sum_by_categories(g.user.url_api_key, request.json)
 
     return jsonify(success=True)
 
@@ -78,7 +84,17 @@ def index():
     return "<h1>Welcome to our server !!</h1>"
 
 
-# start flask app
+@app.route('/api/categories', methods=['GET'])
+@cross_origin()
+@auth.login_required
+def get_categories():
+    api_key = g.user.api_key
+
+    response = requests.get()
+
+    return response.content
+
+    # start flask app
 if __name__ == '__main__':
     cors = CORS(app)
     app.config.from_pyfile('config.py')
