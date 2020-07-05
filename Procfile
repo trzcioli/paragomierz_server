@@ -1,1 +1,1 @@
-web: flask db upgrade; gunicorn -b :$PORT paragomierz.app
+web: flask db upgrade; gunicorn -b :$PORT paragomierz:app
