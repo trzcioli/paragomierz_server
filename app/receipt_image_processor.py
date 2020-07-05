@@ -81,7 +81,7 @@ def extract_names_and_prices(new_text):
     return all_elems
 
 
-def main(image):
+def process_image(image):
     print(image)
     # co musze wziac pod uwage:  co jesli name lub price jest puste; co jesli price ma separator .
     gray = image

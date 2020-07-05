@@ -1,22 +1,13 @@
-from flask import Flask, request, Response, jsonify, make_response
+from app import app, db
+from flask import request, Response, jsonify, make_response
 import numpy as np
 import cv2
-import projekt
+from app import receipt_image_processor
 import json
+from flask_cors import cross_origin
 from dataclasses_serialization.json import JSONSerializer
-from flask_cors import CORS, cross_origin
-from flask_sqlalchemy import SQLAlchemy
-import os
-from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User
-
-migrate = Migrate(compare_type=True)
-app = Flask(__name__)
-# app.config.from_object(os.environ['APP_SETTINGS'])
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-migrate.init_app(app)
+from app.models import User
 
 
 @app.route('/register', methods=["POST"])
@@ -57,7 +48,7 @@ def test():
     img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
 
     # do processing here....
-    res = projekt.main(img)
+    res = receipt_image_processor.process_image(img)
     print(res)
     js = []
 

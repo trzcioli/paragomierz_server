@@ -1,1 +1,1 @@
-web: flask db upgrade; gunicorn -b :$PORT app:app
+web: flask db upgrade; gunicorn -b :$PORT app:app.app
