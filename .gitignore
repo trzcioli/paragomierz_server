@@ -118,3 +118,4 @@ dist
 __pycache__/
 .DS_Store
 notes.txt
+!**/__pycache__/

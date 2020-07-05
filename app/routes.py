@@ -30,10 +30,11 @@ def register():
 
 @app.route('/sign_in', methods=["GET", "POST"])
 def sign_in():
-    username_entered = request.args.get('email')
-    password_entered = request.args.get('password')
+    payload = request.json
+    email = payload.get('email')
+    password = payload.get('password')
     user = User.query.get(email)
-    if user is not None and check_password_hash(user.password, password_entered):
+    if user is not None and check_password_hash(user.password, password):
         return jsonify({'token': ''})
     return jsonify({'message': 'invalid credentials'}), 401
 
