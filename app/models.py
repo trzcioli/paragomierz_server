@@ -20,11 +20,11 @@ class User(db.Model):
     def __repr__(self):
         return '<id {}>'.format(self.id)
 
-    def generate_auth_token(self, expiration=300):
+    def generate_auth_token(self, expiration=60 * 60 * 24):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'email': self.email})
 
-    @ staticmethod
+    @staticmethod
     def verify_auth_token(token):
         s = Serializer(app.config['SECRET_KEY'])
         try:

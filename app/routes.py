@@ -9,6 +9,7 @@ from dataclasses_serialization.json import JSONSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
 from app import auth
+import requests
 
 
 @auth.verify_password
@@ -45,7 +46,7 @@ def sign_in():
     password = payload.get('password')
     user = User.query.get(email)
     if user is not None and check_password_hash(user.password, password):
-        return token
+        return user.generate_auth_token()
     return jsonify({'message': 'invalid credentials'}), 401
 
 
@@ -90,9 +91,11 @@ def index():
 def get_categories():
     api_key = g.user.api_key
 
-    response = requests.get()
+    url = f"https://secure.kontomierz.pl/k4/categories.json?in_wallet=true&direction=withdrawal&api_key=${api_key}"
 
-    return response.content
+    response = requests.get(url)
+
+    return response.json
 
     # start flask app
 if __name__ == '__main__':
