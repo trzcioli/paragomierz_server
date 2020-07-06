@@ -10,6 +10,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
 from app import auth
 import requests
+from cryptography.fernet import Fernet
+
+
+def encrypt(message: bytes) -> bytes:
+    return Fernet(app.config["SECRET_KEY"]).encrypt(message)
+
+
+def decrypt(token: bytes) -> bytes:
+    return Fernet(app.config["SECRET_KEY"]).decrypt(token)
 
 
 @auth.verify_password
@@ -26,9 +35,10 @@ def register():
     payload = request.json
     email = payload.get('email')
     api_key = payload.get('api_key')
-    api_key_hash = generate_password_hash(api_key)
+    api_key_hash = encrypt(api_key.encode()).decode()
+    print(api_key_hash)
     url_api_key = payload.get('url_api_key')
-    url_api_key_hash = generate_password_hash(url_api_key)
+    url_api_key_hash = encrypt(url_api_key.encode()).decode()
     password = payload.get('password')
     password_hash = generate_password_hash(password)
     user = User(email=email, api_key=api_key_hash,
@@ -90,16 +100,10 @@ def index():
 @auth.login_required
 def get_categories():
     api_key = g.user.api_key
+    key = decrypt(api_key.encode()).decode()
 
-    url = f"https://secure.kontomierz.pl/k4/categories.json?in_wallet=true&direction=withdrawal&api_key=${api_key}"
+    url = f"https://secure.kontomierz.pl/k4/categories.json?direction=withdrawal&in_wallet=true&api_key={key}"
 
-    response = requests.get(url)
+    resp = requests.get(url)
 
-    return response.json
-
-    # start flask app
-if __name__ == '__main__':
-    cors = CORS(app)
-    app.config.from_pyfile('config.py')
-    app.config['CORS_HEADERS'] = 'Content-Type'
-    app.run(threaded=True, host="0.0.0.0", port=5000, debug=True)
+    return resp.json()

@@ -7,7 +7,8 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', '')
-    SECRET_KEY = '00000'
+    SECRET_KEY = os.environ.get(
+        'APP_SECRET_KEY', b'xFsEFjsXYqtf5U_9WknI2MBPXPKiYm4UegWolztul2s=')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

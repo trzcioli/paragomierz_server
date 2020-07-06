@@ -7,8 +7,8 @@ from itsdangerous import (
 class User(db.Model):
     email = db.Column(db.String(120), index=True,
                       unique=True, primary_key=True)
-    api_key = db.Column(db.String(120), index=True, unique=True)
-    url_api_key = db.Column(db.String(120), index=True, unique=True)
+    api_key = db.Column(db.String(500), index=True, unique=True)
+    url_api_key = db.Column(db.String(500), index=True, unique=True)
     password = db.Column(db.String(128))
 
     def __init__(self, email, api_key, url_api_key, password):
