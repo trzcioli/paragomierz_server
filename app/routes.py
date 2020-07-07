@@ -85,7 +85,8 @@ def process_image():
 @cross_origin()
 @auth.login_required
 def sum_categories():
-    receipt_image_processor.sum_by_categories(g.user.url_api_key, request.json)
+    key = decrypt(g.user.url_api_key.encode()).decode()
+    receipt_image_processor.sum_by_categories(key, request.json)
 
     return jsonify(success=True)
 
