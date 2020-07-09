@@ -18,18 +18,18 @@ Available endpoints:
 - /api/sum - POST, token required. Sums the expenses by categories and synchronized the result with your kontomierz wallet
 - /api/categories - GET, get available categories from kontomierz using your api_key to authenticate
 
-The token that is returned by the register and sign_in endpoints is to be used for authorization. It's extracted from username from http basic authentication, that is in order to use it, base64 encode the token with unused password (e.g. <token>:unused, https://www.base64encode.org/) and include the result in basic auth header: "Authorization: Basic <result>"
+The token that is returned by the register and sign_in endpoints is to be used for authorization. It's extracted from username from http basic authentication, that is in order to use it, base64 encode the token with unused password (e.g. {token}:unused, https://www.base64encode.org/) and include the result in basic auth header: "Authorization: Basic {result}"
 
 ---
 
 Example curls:
 
 ```console
-curl "domain/register" -d '{"email": "your_email", "api_key": "your_api_key", "url_api_key": "your_url_api_key", "password": "your_password"}' -H "Content-Type: application/json" -v
+curl "{domain}/register" -d '{"email": "{your_email}", "api_key": "{your_api_key}", "url_api_key": "{your_url_api_key}", "password": "{your_password}"}' -H "Content-Type: application/json" -v
 
-curl "domain/sign_in -H "Content-Type: application/json" -d '{"email": "your_email", "password": "your_password"}' -v
+curl "{domain}/sign_in -H "Content-Type: application/json" -d '{"email": "{your_email}", "password": "{your_password}"}' -v
 
-curl "domain/categories" -H "Authorization: Basic your_base64_token" -v
+curl "{domain}/categories" -H "Authorization: Basic your_base64_token" -v
 ```
 
 ---
